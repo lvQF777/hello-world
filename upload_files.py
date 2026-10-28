@@ -67,34 +67,37 @@ def main():
         fi.set_input_files(files)
         time.sleep(8)
 
-        # 提交: 真正的按钮文案是 "Commit changes..." (带省略号), 点了会弹出对话框,
-        # 必须在对话框里再点一次精确文字为 "Commit changes" 的按钮才生效。
-        submitted = False
+        # 上传页只有一个 "Commit changes" 按钮(不带省略号), 直接点它会立即提交, 不弹对话框。
+        # 注意: 编辑页/删除页的按钮是 "Commit changes..."(带省略号)且会弹对话框, 两者行为不同。
+        print("提交更改...", flush=True)
+        clicked = False
         for sel in ["button:has-text('Commit changes')",
                     "button:has-text('Commit')"]:
             try:
                 btns = [e for e in page.query_selector_all(sel) if e.is_visible()]
                 if btns:
-                    btns[0].click(timeout=8000)
-                    print(f"打开提交对话框 ({sel})", flush=True)
-                    submitted = True
+                    btns[0].click(timeout=10000)
+                    clicked = True
+                    print(f"已点击提交 ({sel})", flush=True)
                     break
             except Exception:
                 continue
-        if submitted:
-            time.sleep(3)
-            confirmed = False
+        if not clicked:
+            print("!! 未找到提交按钮", flush=True)
+
+        # 提交后可能弹对话框(取决于 GitHub 版本), 有就再确认一次
+        time.sleep(3)
+        try:
             for e in page.query_selector_all("[role=dialog] button"):
                 try:
                     if e.inner_text().strip() == "Commit changes":
                         e.click(timeout=8000)
-                        confirmed = True
-                        print("已在对话框中确认提交", flush=True)
+                        print("对话框中二次确认", flush=True)
                         break
                 except Exception:
                     continue
-            if not confirmed:
-                print("!! 对话框确认按钮未找到", flush=True)
+        except Exception:
+            pass
 
         for i in range(30):
             time.sleep(1)
