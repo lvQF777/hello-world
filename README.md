@@ -14,6 +14,13 @@
 | `create_repo.py` | 在浏览器内创建 GitHub 仓库 |
 | `upload_files.py` | 通过网页上传文件到仓库（本机没装 git 时的替代方案） |
 | `profile_setup.py` | 批量填写个人资料（昵称 / 简介等），`--dry` 可只看不改 |
+| `edit_file.py` | 在网页编辑器中改写已有文件（CodeMirror 6，走真实键盘输入） |
+| `delete_file.py` | 通过网页删除仓库文件 |
+
+> 网页提交流程有个坑：按钮文案是 `Commit changes...`（带省略号），点击后弹出对话框，
+> 必须在对话框里再点一次精确文字为 `Commit changes` 的按钮才真正落库。
+> 点对话框右上角那个空文字的图标按钮等于关闭弹窗，会让人误以为已提交。
+> 提交后用 API 核对 `commits` 和 `contents` 才靠谱。
 
 ## 典型用法
 
@@ -30,6 +37,11 @@ python browser_daemon.py
 python browser_do.py status
 python profile_setup.py --dry            # 先看字段结构
 python profile_setup.py "昵称" "一句话简介"
+
+# 网页上传 / 改写 / 删除文件(不需要本地 git)
+python upload_files.py owner/repo a.py b.py
+python edit_file.py owner/repo README.md README.md main
+python delete_file.py owner/repo old.txt main
 ```
 
 浏览器相关的四个脚本依赖 `playwright`，安装时若报找不到版本，是本地代理挡了镜像源，
